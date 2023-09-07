@@ -13,17 +13,13 @@
   }
 }
 
-.App-header {
-  background-image: url('images/bg_overlay.png');
+.Home {
+  background-image: url('./images/bg_overlay.png');
   background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  min-height: 100vh;
+  width: 100%;
   height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: white;
+
 }
 
 .App-link {
@@ -38,19 +34,26 @@
     transform: rotate(360deg);
   }
 }
-.App header h1 {
+.gameTitle {
   color: black;
-  margin-bottom: 100px;
+  display: flex;
+  justify-content: center;
+  padding-top: 50px;
 }
 
-.App header h3 {
-  color: white;
-  margin-right: 900px;
-  margin-bottom: 100px;
+.startButton {
+  color: greenyellow;
+    width: 300px;
+    border: 15px solid gray;
+    padding: 50px;
+    margin: 20px;
+    position: absolute;
+    left: 38%;
+    
 }
 
 /* Style for the "Start Game" button */
-.start-button {
+.startButton {
   background-color: #61dafb;
   color: white;
   border: none;
@@ -59,8 +62,29 @@
   cursor: pointer;
   border-radius: 5px;
   margin-top: 20px; /* Add some margin to separate from the heading */
+  left: 38%;
 }
 
 .logo {
-  margin-top: 50px;
+  position: absolute;
+  top: 2%;
+  left: 50%;
 }
+.grid {
+
+  position: absolute;
+  top: 20%;
+  left: 75%;
+
+}
+
+.Summary {
+  color: black;
+  display: flex;
+  justify-content: left;
+  position: absolute;
+  left: 20%;
+  top: 20%;
+
+}
+
