@@ -31,6 +31,13 @@ export default function GamePhaser({setGameRef}) {
             width: gameWidth, //detect aspect ratio and set width and height accordingly
             height: gameHeight,
         },
+        physics: {
+            default: 'arcade',
+            arcade: {
+                debug: true,
+                gravity: { y: 0 }
+            }
+        },
         transparent: true,
         fps: {
             target: 30,
