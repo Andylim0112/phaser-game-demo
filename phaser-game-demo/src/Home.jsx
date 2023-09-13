@@ -9,12 +9,21 @@ import {Container , Button} from 'react-bootstrap';
 function App() {
   return (
     <Container fluid className="Home">
+
+
+<video className="video-size" autoPlay muted loop>
+  <source
+    src="logo_animation.mp4"
+    type="video/mp4"
+  />
+</video>
+
+
+
     <div className="App">
     </div>
-      <header className="App-header">
      
-      <img src="/.images/logo.png" alt="Logo" className="logo" />
-      </header>
+      
 
       <h1 className='gameTitle'>Catch Game</h1>
 

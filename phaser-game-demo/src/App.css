@@ -39,6 +39,7 @@
   display: flex;
   justify-content: center;
   padding-top: 50px;
+  font: Truculenta;
 }
 
 .startButton {
@@ -49,6 +50,7 @@
     margin: 20px;
     position: absolute;
     left: 38%;
+    font: Truculenta;
     
 }
 
@@ -85,6 +87,11 @@
   position: absolute;
   left: 20%;
   top: 20%;
-
+  font: Truculenta;
 }
 
+
+.video-size {
+  width: 400px; /* Set the width to your desired size (e.g., 200 pixels) */
+  height: auto; /* Auto height to maintain aspect ratio */
+}
