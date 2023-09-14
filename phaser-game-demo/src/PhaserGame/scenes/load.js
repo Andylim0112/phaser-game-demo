@@ -19,6 +19,8 @@ export class Load extends Phaser.Scene {
     this.cardsCaughtText = null; // Text object to display cards caught
     this.cardsLostText = null; // Text object to display cards lost
     this.rotationSpeed = 0.02; // Rotation speed for falling cards
+    this.elapsedTime = 0; // Elapsed time since the game started
+    this.initialFallingSpeed = 20; // Faster initial falling speed of cards
   }
 
   loadFont(name, url) {
@@ -32,7 +34,7 @@ export class Load extends Phaser.Scene {
   }
 
   preload() {
-    console.log('PHASER is working! In the load scene preloading assets');
+    // Preload assets
     this.load.image("red", "./images/1_or_11.png");
     this.load.image("white", "./images/double.png");
     this.load.image("blue", "./images/redraw.png");
@@ -53,6 +55,7 @@ export class Load extends Phaser.Scene {
   }
 
   create() {
+    // Create game elements
     this.cameras.main.fadeIn(500, 0, 0, 0);
 
     let bg = this.add.image(0, 0, 'bg_overlay').setOrigin(0, 0);
@@ -123,7 +126,7 @@ export class Load extends Phaser.Scene {
       }
     );
 
-    let fallingSpeed = 5;
+    let fallingSpeed = this.initialFallingSpeed;
 
     this.startTimer();
 
@@ -180,6 +183,29 @@ export class Load extends Phaser.Scene {
         // Destroy the card object
         card.destroy();
       }
+    };
+
+    const saveTopScores = () => {
+      const topScores = []; // An array to store top scores
+
+      // Add the current score to the list of top scores
+      topScores.push({ score: this.score, date: new Date().toISOString() });
+
+      // Load existing top scores from JSON (if any)
+      const existingScoresJSON = localStorage.getItem('topScores');
+      if (existingScoresJSON) {
+        const existingScores = JSON.parse(existingScoresJSON);
+
+        // Merge and sort the scores
+        topScores.push(...existingScores);
+        topScores.sort((a, b) => b.score - a.score);
+
+        // Keep only the top 5 scores
+        topScores.splice(5);
+      }
+
+      // Save the top scores back to JSON
+      localStorage.setItem('topScores', JSON.stringify(topScores));
     };
 
     const stopGame = () => {
@@ -264,6 +290,9 @@ export class Load extends Phaser.Scene {
         fill: '#fff'
       }).setOrigin(0.5, 0.5);
       this.gameOverContainer.add(homepageText);
+
+      // Call saveTopScores to save scores when the game is over
+      saveTopScores();
     };
 
     const spawnCard = () => {
@@ -271,6 +300,10 @@ export class Load extends Phaser.Scene {
 
       let objectKey;
       const rand = Math.random();
+
+      const minX = this.game.config.width * 0.4;
+      const maxX = this.game.config.width * 0.7;
+      const randomX = Phaser.Math.Between(minX, maxX);
 
       if (rand <= 0.575) {
         objectKey = 'blue';
@@ -285,7 +318,7 @@ export class Load extends Phaser.Scene {
       }
 
       const object = this.physics.add.image(
-        Phaser.Math.Between(0, this.game.config.width),
+        randomX,
         Phaser.Math.Between(-200, -50),
         objectKey
       );
@@ -305,6 +338,13 @@ export class Load extends Phaser.Scene {
       }
 
       this.fallingObjects.push(object);
+
+      // Calculate falling speed based on remaining time
+      const minFallingSpeed = 20; // Faster minimum falling speed
+      const maxFallingSpeed = 50; // Faster final falling speed
+      const timeFactor = (this.timer >= 0 ? 1 - (this.timer / 60) : 0); // Adjust speed based on remaining time
+      const fallingSpeed = minFallingSpeed + (maxFallingSpeed - minFallingSpeed) * timeFactor; // Faster as time decreases
+
       object.y += fallingSpeed;
 
       object.setDepth(-3);
@@ -323,8 +363,18 @@ export class Load extends Phaser.Scene {
   }
 
   update() {
+    // Calculate falling speed based on remaining time
+    const minFallingSpeed = 20; // Faster minimum falling speed
+    const maxFallingSpeed = 50; // Faster final falling speed
+
+    // Calculate the time factor to adjust the speed
+    const timeFactor = (this.timer >= 0 ? 1 - (this.timer / 60) : 0); // Adjust speed based on remaining time
+
+    // Interpolate the falling speed between min and max based on time factor
+    const fallingSpeed = minFallingSpeed + (maxFallingSpeed - minFallingSpeed) * timeFactor;
+
     this.fallingObjects.forEach((object, index) => {
-      object.y += 20;
+      object.y += fallingSpeed;
 
       // Check if the card is out of bounds (below the screen)
       if (object.y > this.game.config.height) {
