@@ -52,11 +52,23 @@ export class Load extends Phaser.Scene {
 
     this.loadFont('Truculenta', '/fonts/Truculenta-Regular.ttf');
     this.loadFont('TruculentaBold', '/fonts/Truculenta-Black.ttf');
+
+
+    this.load.audio("game", "./sound/game.mp3");
+    this.load.audio("click", "./sound/click.mp3");
+    this.load.audio("wrong", "./sound/wrong.mp3");
+    this.load.audio("gameover", "./sound/gameover.mp3");
+
+    
   }
 
   create() {
     // Create game elements
     this.cameras.main.fadeIn(500, 0, 0, 0);
+
+
+    this.backgroundMusic = this.sound.add('game', { loop: true }); // 'game' should match the key you used in preload
+    this.backgroundMusic.play();
 
     let bg = this.add.image(0, 0, 'bg_overlay').setOrigin(0, 0);
     let scaleX = this.cameras.main.width / bg.width;
@@ -209,6 +221,8 @@ export class Load extends Phaser.Scene {
     };
 
     const stopGame = () => {
+      this.stopBackgroundMusic();
+      this.playGameOver()
       console.log('Game Over!');
       this.gameOver = true;
 
@@ -295,16 +309,21 @@ export class Load extends Phaser.Scene {
       saveTopScores();
     };
 
+
+
+
+
+
     const spawnCard = () => {
       if (this.gameOver) return;
-
+    
       let objectKey;
       const rand = Math.random();
-
+    
       const minX = this.game.config.width * 0.4;
       const maxX = this.game.config.width * 0.7;
       const randomX = Phaser.Math.Between(minX, maxX);
-
+    
       if (rand <= 0.575) {
         objectKey = 'blue';
       } else if (rand <= 0.75) {
@@ -316,39 +335,51 @@ export class Load extends Phaser.Scene {
       } else {
         objectKey = 'skull';
       }
+    
+      // Load the card image with a key and specify width and height
+      const card = this.add.image(randomX, Phaser.Math.Between(-200, -50), objectKey)
+        .setDisplaySize(350, 530); // Adjust width and height as needed
+    
+      card.setInteractive();
+      card.on('pointerdown', () => {
+        if (objectKey === 'blue' || objectKey === 'white' || objectKey === 'red' || objectKey === 'purple') {
+          this.playClickSound(); // Play the "click" sound when the card is clicked
 
-      const object = this.physics.add.image(
-        randomX,
-        Phaser.Math.Between(-200, -50),
-        objectKey
-      );
+        }
+        if (objectKey === 'skull') {
+          this.playWrongSound();
 
-      object.setScale(0.5);
-
-      object.setInteractive();
-      object.on('pointerdown', () => {
-        onCardClick(object);
+        }
+        onCardClick(card);
       });
-
+    
       if (objectKey === 'skull') {
-        object.setScale(1.5);
-        object.on('pointerdown', () => {
+        card.setScale(1.5);
+        card.on('pointerdown', () => {
           stopGame();
         });
       }
-
-      this.fallingObjects.push(object);
-
+    
+      this.fallingObjects.push(card);
+    
       // Calculate falling speed based on remaining time
       const minFallingSpeed = 20; // Faster minimum falling speed
       const maxFallingSpeed = 50; // Faster final falling speed
-      const timeFactor = (this.timer >= 0 ? 1 - (this.timer / 60) : 0); // Adjust speed based on remaining time
+      const timeFactor = this.timer >= 0 ? 1 - this.timer / 60 : 0; // Adjust speed based on remaining time
       const fallingSpeed = minFallingSpeed + (maxFallingSpeed - minFallingSpeed) * timeFactor; // Faster as time decreases
-
-      object.y += fallingSpeed;
-
-      object.setDepth(-3);
+    
+      card.y += fallingSpeed;
+    
+      card.setDepth(-3);
     };
+    
+
+
+
+
+
+
+    
 
     this.time.addEvent({
       delay: 60000,
@@ -411,10 +442,31 @@ export class Load extends Phaser.Scene {
   }
 
   timerCallback() {
-    this.timer -= 1;
-    this.timerText.setText(`Time: ${this.timer}`);
-    if (this.timer <= 0) {
-      this.timer = 0;
+    if (!this.gameOver) {
+      this.timer -= 1;
+      this.timerText.setText(`Time: ${this.timer}`);
+      if (this.timer <= 0) {
+        this.timer = 0;
+      }
     }
   }
+  stopBackgroundMusic() {
+    if (this.backgroundMusic && this.backgroundMusic.isPlaying) {
+      this.backgroundMusic.stop();
+    }
+  }
+  playClickSound() {
+    const clickSound = this.sound.add('click');
+    clickSound.play();
+  }
+    playWrongSound() {
+      const wrongSound = this.sound.add('wrong');
+      wrongSound.play();
+    }
+
+    playGameOver() {
+      const gameoverSound = this.sound.add('gameover');
+      gameoverSound.play();
+    }
+ 
 }
